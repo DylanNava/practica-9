@@ -1,0 +1,348 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+template<class T>
+class LDLLSE;
+
+template<class T>
+class nodo {
+private:
+    nodo<T>* sig;
+    nodo<T>* ant;
+public:
+    T data;
+    nodo() : sig(nullptr), ant(nullptr) {}
+    friend class LDLLSE<T>;
+};
+
+template<class T>
+class LDLLSE {
+private:
+    nodo<T>* ancla;
+public:
+    LDLLSE() : ancla(nullptr) {}
+    bool vacia() const;
+    nodo<T>* primero() const;
+    nodo<T>* ultimo() const;
+    nodo<T>* anterior(nodo<T>*) const;
+    nodo<T>* siguiente(nodo<T>* ) const;
+    nodo<T>* localiza(T) const;
+    T recupera(nodo<T>*) const;
+    void imprime() const;
+    void anula();
+    void inserta(nodo<T>* pos, T elem);
+    void elimina(nodo<T>* pos);
+};
+
+template<class T>
+void LDLLSE<T>::inserta(nodo<T>* pos, T elem) {
+    nodo<T>* nuevo = new nodo<T>;
+    nuevo->data = elem;
+
+    if (pos == nullptr) {
+        nuevo->sig = ancla;
+        if (ancla != nullptr) {
+            ancla->ant = nuevo;
+        }
+        ancla = nuevo;
+    } else {
+        nuevo->sig = pos->sig;
+        if (pos->sig != nullptr) {
+            pos->sig->ant = nuevo;
+        }
+        pos->sig = nuevo;
+        nuevo->ant = pos;
+    }
+}
+
+template<class T>
+void LDLLSE<T>::elimina(nodo<T>* pos) {
+    if (pos != nullptr) {
+        if (pos->ant != nullptr) {
+            pos->ant->sig = pos->sig;
+        } else {
+            ancla = pos->sig;
+        }
+
+        if (pos->sig != nullptr) {
+            pos->sig->ant = pos->ant;
+        }
+
+        delete pos;
+    }
+}
+
+template<class T>
+nodo<T>* LDLLSE<T>::primero() const {
+    return ancla;
+}
+
+template<class T>
+nodo<T>* LDLLSE<T>::ultimo() const {
+    if (vacia()) {
+        return ancla;
+    } else {
+        nodo<T>* aux = ancla;
+        while (aux->sig != nullptr) {
+            aux = aux->sig;
+        }
+        return aux;
+    }
+}
+
+template<class T>
+nodo<T>* LDLLSE<T>::anterior(nodo<T>* pos) const {
+    if (vacia() || pos == nullptr) {
+        return nullptr;
+    } else {
+        return pos->ant;
+    }
+}
+
+template<class T>
+nodo<T>* LDLLSE<T>::siguiente(nodo<T>* pos) const {
+    if (vacia() || pos == nullptr) {
+        return nullptr;
+    } else {
+        return pos->sig;
+    }
+}
+
+template<class T>
+nodo<T>* LDLLSE<T>::localiza(T elem) const {
+    nodo<T>* aux = ancla;
+    while (aux != nullptr && aux->data != elem) {
+    aux = aux->sig;
+    }
+    return aux;
+}
+
+template<class T>
+T LDLLSE<T>::recupera(nodo<T>* pos) const {
+    if (vacia() || pos == nullptr) {
+    return T();
+}else{
+    return pos->data;
+    }
+}
+
+template<class T>
+bool LDLLSE<T>::vacia() const {
+    return ancla == nullptr;
+}
+
+template<class T>
+void LDLLSE<T>::imprime() const {
+if (!vacia()) {
+    nodo<T>* aux = ancla;
+    while (aux != nullptr) {
+    cout << aux->data <<  endl;
+    aux = aux->sig;
+        }
+    }
+}
+
+template<class T>
+void LDLLSE<T>::anula() {
+
+    nodo<T>* aux;
+    while (ancla != nullptr) {
+    aux = ancla;
+    ancla = aux->sig;
+    delete aux;
+    }
+}
+
+class SocioClub {
+public:
+    int NumeroSocio;
+    string NombreSocio;
+    string Domicilio;
+    int AnioIngreso;
+
+    SocioClub() : NumeroSocio(0), AnioIngreso(0) {}
+    SocioClub(int numSocio, const string& nombre, const string& domicilio, int anioIngreso)
+:   NumeroSocio(numSocio), NombreSocio(nombre), Domicilio(domicilio), AnioIngreso(anioIngreso) {}
+
+int getNumeroSocio() const {
+    return NumeroSocio;
+}
+
+string getNombreSocio() const {
+    return NombreSocio;
+}
+
+string getDomicilio() const {
+    return Domicilio;
+}
+
+int getAnioIngreso() const {
+    return AnioIngreso;
+}
+
+void setNumeroSocio(int numSocio) {
+    NumeroSocio = numSocio;
+}
+
+void setNombreSocio(const string& nombre) {
+    NombreSocio = nombre;
+}
+
+void setDomicilio(const string& domicilio) {
+    Domicilio = domicilio;
+}
+
+void setAnioIngreso(int anioIngreso) {
+    AnioIngreso = anioIngreso;
+}
+
+bool operator==(const SocioClub& otro) const {
+    return NumeroSocio == otro.NumeroSocio;
+}
+
+bool operator!=(const SocioClub& otro) const {
+    return NumeroSocio != otro.NumeroSocio;
+}
+
+};
+
+ostream& operator<<( ostream& os, const SocioClub& socio)
+{
+    cout << "Numero de socio: ";
+    os << socio.NumeroSocio;
+    cout <<endl;
+    cout << "Nombre: ";
+    os << socio.NombreSocio;
+    cout <<endl;
+    cout << "Domicilio: ";
+    os << socio.Domicilio;
+    cout <<endl;
+    cout << "Año de ingreso: ";
+    os << socio.AnioIngreso;
+    cout <<endl<<"------------------";
+    return os;
+}
+
+int main() {
+LDLLSE<SocioClub> listaSocios;
+int opcion;
+do {
+    system("cls");
+    cout << "=== Menu ===" << endl;
+    cout << "1. Registrar un nuevo socio" << endl;
+    cout << "2. Dar de baja un socio" << endl;
+    cout << "3. Generar un reporte de socios" << endl;
+    cout << "4. Buscar socio por nombre y domicilio" << endl;
+    cout << "5. Imprimir socios registrados" << endl;
+    cout << "6. Salir" << endl;
+    cout << "Ingrese una opcion: ";
+    cin >> opcion;
+    switch (opcion) {
+    case 1: {
+            int numSocio, anioIngreso;
+            string nombre, domicilio;
+            system("cls");
+            cout << "Ingrese el numero de socio: ";
+            cin >> numSocio;
+            if (listaSocios.localiza(SocioClub(numSocio, "", "", 0)) != nullptr) {
+                cout << "Ya existe un socio con ese número." << endl;
+                system("pause");
+                break;
+            }
+
+                cout << "Ingrese el nombre del socio: ";
+                cin.ignore();
+                getline( cin, nombre);
+                cout << "Ingrese el domicilio del socio: ";
+                getline( cin, domicilio);
+                cout << "Ingrese el año de ingreso del socio: ";
+                cin >> anioIngreso;
+                SocioClub nuevoSocio(numSocio, nombre, domicilio, anioIngreso);
+                listaSocios.inserta(nullptr, nuevoSocio);
+                cout << "Socio registrado correctamente." << endl;
+                system("pause");
+                break;
+            }
+        case 2: {
+            int numSocio;
+            system("cls");
+            cout << "Ingrese el numero de socio a dar de baja: ";
+            cin >> numSocio;
+            nodo<SocioClub>* socio = listaSocios.localiza(SocioClub(numSocio, "", "", 0));
+            if (socio == nullptr) {
+                cout << "No se encontro ningun socio con ese numero." << endl;
+                system("pause");
+                break;
+            }
+
+            listaSocios.elimina(socio);
+            cout << "Socio dado de baja correctamente." << endl;
+            system("pause");
+            break;
+        }
+        case 3: {
+            system("cls");
+            cout << "=== Reporte de Socios ===" << endl;
+            listaSocios.imprime();
+            system("pause");
+            break;
+        }
+        case 4: {
+            system("cls");
+            string nombre, domicilio;
+            cout << "Ingrese el nombre del socio a buscar: ";
+            cin.ignore();
+            getline( cin, nombre);
+            cout << "Ingrese el domicilio del socio a buscar: ";
+            getline( cin, domicilio);
+            nodo<SocioClub>* socio = listaSocios.primero();
+            bool encontrado = false;
+
+            while (socio != nullptr) {
+                if (socio->data.getNombreSocio() == nombre && socio->data.getDomicilio() == domicilio) {
+                    cout << "Socio encontrado:" <<  endl;
+                    cout << "Número de socio: " << socio->data.getNumeroSocio() <<  endl;
+                    cout << "Nombre: " << socio->data.getNombreSocio() <<  endl;
+                    cout << "Domicilio: " << socio->data.getDomicilio() <<  endl;
+                    cout << "Año de ingreso: " << socio->data.getAnioIngreso() <<  endl;
+                    encontrado = true;
+                    system("pause");
+                    break;
+                }
+                socio = listaSocios.siguiente(socio);
+            }
+
+            if (!encontrado) {
+                cout << "No se encontro ningun socio con esos datos." <<endl;
+                system("pause");
+            }
+            break;
+        }
+        case 5: {
+            system("cls");
+            cout << "=== Socios Registrados ===" <<endl;
+            listaSocios.imprime();
+            system("pause");
+            break;
+        }
+        case 6: {
+            system("cls");
+            cout << "Saliendo del programa..." <<endl;
+            system("pause");
+            break;
+        }
+        default: {
+            cout << "Opcion invalida. Intente nuevamente." <<endl;
+            system("pause");
+            break;
+        }
+    }
+        cout << endl;
+    }while (opcion != 6);
+
+    listaSocios.anula();
+
+    return 0;
+}
